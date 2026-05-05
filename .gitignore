@@ -1,0 +1,6 @@
+/target
+.env
+Cargo.lock
+*.pdb
+.DS_Store
+Thumbs.db

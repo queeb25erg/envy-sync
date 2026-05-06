@@ -44,6 +44,17 @@ impl EnvDiff {
             .filter_map(|(k, v)| matches!(v, DiffEntry::Modified { .. }).then_some(k.as_str()))
             .collect()
     }
+
+    /// Returns a summary of the diff as a human-readable string.
+    ///
+    /// Example output: `"3 added, 1 removed, 2 modified, 5 unchanged"`
+    pub fn summary(&self) -> String {
+        let added = self.entries.values().filter(|e| matches!(e, DiffEntry::Added(_))).count();
+        let removed = self.entries.values().filter(|e| matches!(e, DiffEntry::Removed(_))).count();
+        let modified = self.entries.values().filter(|e| matches!(e, DiffEntry::Modified { .. })).count();
+        let unchanged = self.entries.values().filter(|e| matches!(e, DiffEntry::Unchanged(_))).count();
+        format!("{added} added, {removed} removed, {modified} modified, {unchanged} unchanged")
+    }
 }
 
 /// Compute a diff between local and remote env maps.

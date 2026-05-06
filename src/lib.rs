@@ -1,6 +1,7 @@
 pub mod backend;
 pub mod config;
 pub mod crypto;
+pub mod diff;
 pub mod storage;
 pub mod sync;
 
@@ -10,6 +11,8 @@ mod backend_tests;
 mod config_tests;
 #[cfg(test)]
 mod crypto_tests;
+#[cfg(test)]
+mod diff_tests;
 #[cfg(test)]
 mod storage_tests;
 #[cfg(test)]

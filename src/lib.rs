@@ -1,10 +1,16 @@
+pub mod backend;
+pub mod config;
 pub mod crypto;
 pub mod storage;
+pub mod sync;
 
 #[cfg(test)]
-#[path = "crypto_tests.rs"]
+mod backend_tests;
+#[cfg(test)]
+mod config_tests;
+#[cfg(test)]
 mod crypto_tests;
-
 #[cfg(test)]
-#[path = "storage_tests.rs"]
 mod storage_tests;
+#[cfg(test)]
+mod sync_tests;

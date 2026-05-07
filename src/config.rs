@@ -54,6 +54,17 @@ impl Config {
             .join("config.toml")
     }
 
+    /// Loads the config from the given path if it exists, otherwise returns
+    /// the default config. Useful for commands that can operate without a
+    /// pre-existing config file.
+    pub fn load_or_default(path: &Path) -> Result<Self, ConfigError> {
+        if path.exists() {
+            Self::load(path)
+        } else {
+            Ok(Self::default())
+        }
+    }
+
     pub fn validate(&self) -> Result<(), ConfigError> {
         if self.remote_url.is_empty() {
             return Err(ConfigError::Validation(

@@ -55,6 +55,17 @@ impl EnvDiff {
         let unchanged = self.entries.values().filter(|e| matches!(e, DiffEntry::Unchanged(_))).count();
         format!("{added} added, {removed} removed, {modified} modified, {unchanged} unchanged")
     }
+
+    /// Returns all keys that have changes (added, removed, or modified),
+    /// sorted alphabetically for deterministic output.
+    pub fn changed_keys(&self) -> Vec<&str> {
+        let mut keys: Vec<&str> = self.entries
+            .iter()
+            .filter_map(|(k, v)| (!matches!(v, DiffEntry::Unchanged(_))).then_some(k.as_str()))
+            .collect();
+        keys.sort_unstable();
+        keys
+    }
 }
 
 /// Compute a diff between local and remote env maps.

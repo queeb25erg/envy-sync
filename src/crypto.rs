@@ -69,3 +69,20 @@ pub fn decrypt(encoded: &str, key_bytes: &[u8; 32]) -> Result<Vec<u8>, CryptoErr
         .decrypt(nonce, ciphertext)
         .map_err(|e| CryptoError::Decryption(e.to_string()))
 }
+
+/// Encrypts plaintext and returns the result as a UTF-8 string.
+///
+/// This is a convenience wrapper around [`encrypt`] for callers that work
+/// with string values (e.g. storing encrypted data in a config file).
+pub fn encrypt_to_string(plaintext: &str, key_bytes: &[u8; 32]) -> Result<String, CryptoError> {
+    encrypt(plaintext.as_bytes(), key_bytes)
+}
+
+/// Decrypts a base64-encoded blob and interprets the result as a UTF-8 string.
+///
+/// Returns [`CryptoError::Decryption`] if the decrypted bytes are not valid UTF-8.
+pub fn decrypt_to_string(encoded: &str, key_bytes: &[u8; 32]) -> Result<String, CryptoError> {
+    let bytes = decrypt(encoded, key_bytes)?;
+    String::from_utf8(bytes)
+        .map_err(|e| CryptoError::Decryption(format!("invalid UTF-8: {}", e)))
+}

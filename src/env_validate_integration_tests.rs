@@ -54,4 +54,13 @@ mod integration_tests {
         let args = ValidateArgs { entries: map, strict: true };
         assert!(matches!(run_validate(args), ValidateResult::Errors(_)));
     }
+
+    #[test]
+    fn test_empty_map_is_valid() {
+        let map = entries(&[]);
+        assert!(is_valid(&map));
+        let args = ValidateArgs { entries: map, strict: true };
+        let result = run_validate(args);
+        assert_eq!(result, ValidateResult::Ok);
+    }
 }

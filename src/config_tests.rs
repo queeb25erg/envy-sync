@@ -75,4 +75,13 @@ mod tests {
         assert!(config.save(&nested_path).is_ok());
         assert!(nested_path.exists());
     }
+
+    #[test]
+    fn test_load_invalid_toml_returns_error() {
+        let dir = tempdir().unwrap();
+        let config_path = dir.path().join("config.toml");
+        std::fs::write(&config_path, b"this is not valid toml = [[").unwrap();
+        let result = Config::load(&config_path);
+        assert!(matches!(result, Err(ConfigError::Parse(_))));
+    }
 }

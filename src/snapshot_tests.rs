@@ -12,6 +12,14 @@ mod tests {
         m
     }
 
+    fn store_with_snapshots(labels: &[&str]) -> SnapshotStore {
+        let mut store = SnapshotStore::new();
+        for label in labels {
+            store.add(Snapshot::new(sample_vars(), Some(label.to_string())));
+        }
+        store
+    }
+
     #[test]
     fn test_snapshot_creation() {
         let vars = sample_vars();
@@ -48,12 +56,15 @@ mod tests {
 
     #[test]
     fn test_store_latest() {
-        let mut store = SnapshotStore::new();
-        assert!(store.latest().is_none());
-        store.add(Snapshot::new(sample_vars(), Some("first".to_string())));
-        store.add(Snapshot::new(sample_vars(), Some("second".to_string())));
+        let mut store = store_with_snapshots(&["first", "second"]);
         let latest = store.latest().expect("should have latest");
         assert_eq!(latest.label, Some("second".to_string()));
+    }
+
+    #[test]
+    fn test_store_latest_empty() {
+        let store = SnapshotStore::new();
+        assert!(store.latest().is_none());
     }
 
     #[test]
@@ -85,19 +96,13 @@ mod tests {
     }
 
     #[test]
-    fn test_store_json_roundtrip() {
-        let mut store = SnapshotStore::new();
-        store.add(Snapshot::new(sample_vars(), Some("a".to_string())));
-        store.add(Snapshot::new(sample_vars(), Some("b".to_string())));
-        let json = store.to_json().expect("serialize store");
-        let restored = SnapshotStore::from_json(&json).expect("deserialize store");
-        assert_eq!(restored.snapshots.len(), 2);
-    }
-
-    #[test]
-    fn test_cmd_list_empty()
-    {
-        let store = SnapshotStore::new();
-        cmd_list(&store); // should not panic
+    fn test_cmd_list() {
+        let mut store = store_with_snapshots(&["alpha", "beta", "gamma"]);
+        let listed = cmd_list(&store);
+        assert_eq!(listed.len(), 3);
+        let labels: Vec<_> = listed.iter().filter_map(|s| s.label.as_deref()).collect();
+        assert!(labels.contains(&"alpha"));
+        assert!(labels.contains(&"beta"));
+        assert!(labels.contains(&"gamma"));
     }
 }

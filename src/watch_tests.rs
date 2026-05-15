@@ -16,39 +16,38 @@ mod tests {
         tx.send(event).unwrap();
     }
 
+    /// Creates a channel, sends a single event, and returns the collected watch events.
+    fn collect_single(event: DebouncedEvent) -> Vec<WatchEvent> {
+        let (tx, rx) = channel();
+        send_event(&tx, event);
+        watcher().collect_events(&rx)
+    }
+
     #[test]
     fn test_modified_env_file_detected() {
-        let (tx, rx) = channel();
         let path = PathBuf::from("/tmp/.env");
-        send_event(&tx, DebouncedEvent::Write(path.clone()));
-        let events = watcher().collect_events(&rx);
+        let events = collect_single(DebouncedEvent::Write(path.clone()));
         assert_eq!(events, vec![WatchEvent::Modified(path)]);
     }
 
     #[test]
     fn test_created_env_file_detected() {
-        let (tx, rx) = channel();
         let path = PathBuf::from("/tmp/.env.production");
-        send_event(&tx, DebouncedEvent::Create(path.clone()));
-        let events = watcher().collect_events(&rx);
+        let events = collect_single(DebouncedEvent::Create(path.clone()));
         assert_eq!(events, vec![WatchEvent::Created(path)]);
     }
 
     #[test]
     fn test_removed_env_file_detected() {
-        let (tx, rx) = channel();
         let path = PathBuf::from("/tmp/.env.local");
-        send_event(&tx, DebouncedEvent::Remove(path.clone()));
-        let events = watcher().collect_events(&rx);
+        let events = collect_single(DebouncedEvent::Remove(path.clone()));
         assert_eq!(events, vec![WatchEvent::Removed(path)]);
     }
 
     #[test]
     fn test_non_env_file_ignored() {
-        let (tx, rx) = channel();
         let path = PathBuf::from("/tmp/config.toml");
-        send_event(&tx, DebouncedEvent::Write(path));
-        let events = watcher().collect_events(&rx);
+        let events = collect_single(DebouncedEvent::Write(path));
         assert!(events.is_empty());
     }
 

@@ -79,4 +79,17 @@ mod tests {
         assert!(output.contains("+1 added"));
         assert!(output.contains("-1 removed"));
     }
+
+    #[test]
+    fn test_empty_envs_produce_no_entries() {
+        let old = map(&[]);
+        let new = map(&[]);
+        let report = EnvDiffReport::generate(&old, &new);
+        assert!(report.entries.is_empty());
+        assert!(!report.has_changes());
+        let (added, removed, modified) = report.summary();
+        assert_eq!(added, 0);
+        assert_eq!(removed, 0);
+        assert_eq!(modified, 0);
+    }
 }
